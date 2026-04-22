@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>食久。茶事 | 在地特色美食與溫潤茶香</title>
+    <meta name="description" content="食久。茶事位於桃園龍潭，提供在地當季食材製作的精緻料理，是您午後放鬆與朋友聚餐的最佳選擇。">
+    
+    <!-- Google Fonts & Material Symbols -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+    
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Navigation -->
+    <nav id="navbar">
+        <div class="logo">
+            <span class="material-symbols-outlined">restaurant</span>
+            <span>食久。茶事</span>
+        </div>
+        <div class="nav-links">
+            <a href="#hero">首頁</a>
+            <a href="#features">特色介紹</a>
+            <a href="#menu">美味菜單</a>
+            <a href="#contact">聯絡我們</a>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="hero" id="hero">
+        <div class="hero-content">
+            <h1>食久。茶事</h1>
+            <p>在靜謐的午後，品味一抹時光流轉。<br>我們以茶會友，用料理書寫生活裡最溫潤的風景。</p>
+            <a href="#contact" class="btn">立即訂位</a>
+        </div>
+    </header>
+
+    <!-- Features Section -->
+    <section id="features">
+        <div class="section-title">
+            <h2>特色介紹</h2>
+            <div class="divider"></div>
+        </div>
+        <div class="features">
+            <div class="feature-card">
+                <span class="material-symbols-outlined" style="font-size: 3rem; color: var(--secondary-color);">eco</span>
+                <h3>友善耕作與嚴選食材</h3>
+                <p>我們堅持使用每日清晨直送的在地食材，不加過度調味，只為還原食材最本質的味道。</p>
+            </div>
+            <div class="feature-card">
+                <span class="material-symbols-outlined" style="font-size: 3rem; color: var(--secondary-color);">chair</span>
+                <h3>溫馨靜謐的用餐空間</h3>
+                <p>環境幽雅靜謐，木質調的裝潢營造出溫暖的氛圍，讓您能完全放鬆地享受用餐時光。</p>
+            </div>
+            <div class="feature-card">
+                <span class="material-symbols-outlined" style="font-size: 3rem; color: var(--secondary-color);">local_cafe</span>
+                <h3>在地名茶與精品咖啡</h3>
+                <p>嚴選龍潭在地名茶與職人手沖咖啡，每一口都能品嚐到土地的芬芳與匠心的溫度。</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Menu Section -->
+    <section id="menu">
+        <div class="section-title">
+            <h2>美味菜單</h2>
+            <div class="divider"></div>
+        </div>
+        <div class="menu-grid">
+            <!-- Item 1 -->
+            <div class="menu-item">
+                <div class="menu-img">
+                    <img src="images/salad.png" alt="季節野菜沙拉">
+                </div>
+                <div class="menu-content">
+                    <div class="menu-header">
+                        <h3>季節野菜沙拉</h3>
+                        <span class="menu-price">NT$ 280</span>
+                    </div>
+                    <p>選用桃園在地小農當季蔬菜，搭配特製胡麻醬，口感清新爽脆。</p>
+                </div>
+            </div>
+            <!-- Item 2 -->
+            <div class="menu-item">
+                <div class="menu-img">
+                    <img src="images/beef.png" alt="慢火低溫燉牛肉">
+                </div>
+                <div class="menu-content">
+                    <div class="menu-header">
+                        <h3>慢火低溫燉牛肉</h3>
+                        <span class="menu-price">NT$ 420</span>
+                    </div>
+                    <p>耗時12小時低溫烹調，肉質軟嫩多汁，鎖住牛肉最純粹的鮮甜精華。</p>
+                </div>
+            </div>
+            <!-- Item 3 -->
+            <div class="menu-item">
+                <div class="menu-img">
+                    <img src="images/tiramisu.png" alt="靜岡抹茶提拉米蘇">
+                </div>
+                <div class="menu-content">
+                    <div class="menu-header">
+                        <h3>靜岡抹茶提拉米蘇</h3>
+                        <span class="menu-price">NT$ 180</span>
+                    </div>
+                    <p>宇治抹茶與馬斯卡彭起司的完美結合，苦甜適中，入口即化。</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Map & Contact Section -->
+    <section id="contact">
+        <div class="section-title">
+            <h2>探訪食久</h2>
+            <div class="divider"></div>
+        </div>
+        <div style="max-width: 1200px; margin: 0 auto;">
+            <p style="text-align: center; margin-bottom: 40px; color: var(--text-muted);">我們位於龍潭靜謐的巷弄中，期待您的光臨。</p>
+            <div class="map-container">
+                <!-- Embedded Google Maps - Centered on Longtan, Taoyuan -->
+                <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d14478.431283674643!2d121.2066!3d24.8654!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x34683d73a7407519%3A0xe9899c7553f47e33!2z6beN5r2t5ZyL5bCP!5e0!3m2!1szh-TW!2stw!4v1713780000000!5m2!1szh-TW!2stw" allowfullscreen="" loading="lazy"></iframe>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-grid">
+            <div class="footer-col">
+                <h3>食久。茶事</h3>
+                <p>在食久，我們不只提供食物，更提供一種慢生活的可能。讓每一口餐點都成為您生活中最美好的風景。</p>
+                <div class="social-links">
+                    <a href="#"><span class="material-symbols-outlined">public</span></a>
+                    <a href="#"><span class="material-symbols-outlined">share</span></a>
+                </div>
+            </div>
+            <div class="footer-col">
+                <h3>聯絡資訊</h3>
+                <p><span class="material-symbols-outlined" style="font-size: 1rem; vertical-align: middle; margin-right: 5px;">location_on</span> 桃園市龍潭區某某路XX號</p>
+                <p><span class="material-symbols-outlined" style="font-size: 1rem; vertical-align: middle; margin-right: 5px;">call</span> 03-489-XXXX</p>
+                <p><span class="material-symbols-outlined" style="font-size: 1rem; vertical-align: middle; margin-right: 5px;">schedule</span> 11:00 - 21:00 (週一公休)</p>
+            </div>
+            <div class="footer-col">
+                <h3>快速連結</h3>
+                <nav style="display: flex; flex-direction: column; gap: 10px; background: none; position: static; padding: 0; border: none;">
+                    <a href="#hero" style="color: var(--white); opacity: 0.8; text-decoration: none;">關於我們</a>
+                    <a href="#menu" style="color: var(--white); opacity: 0.8; text-decoration: none;">美味菜單</a>
+                    <a href="#contact" style="color: var(--white); opacity: 0.8; text-decoration: none;">聯絡我們</a>
+                </nav>
+            </div>
+        </div>
+        <div class="copyright">
+            © 2024 食久。茶事 版權所有
+        </div>
+    </footer>
+
+    <script>
+        // Simple scroll effect for navbar
+        window.addEventListener('scroll', () => {
+            const nav = document.getElementById('navbar');
+            if (window.scrollY > 50) {
+                nav.style.padding = '1rem 5%';
+                nav.style.boxShadow = '0 5px 20px rgba(0,0,0,0.1)';
+            } else {
+                nav.style.padding = '1.5rem 5%';
+                nav.style.boxShadow = 'none';
+            }
+        });
+    </script>
+</body>
+</html>
