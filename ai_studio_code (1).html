@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PawMatch | 智能寵物認養系統</title>
+
+    <!-- 1. 外部資源：Tailwind, FontAwesome, React, Babel -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <!-- 2. Firebase SDK (使用相容版本以確保在單一 HTML 中穩定運作) -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-analytics-compat.js"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&family=Noto+Sans+TC:wght@400;700&display=swap');
+        body { font-family: 'Plus Jakarta Sans', 'Noto Sans TC', sans-serif; background-color: #f8fafc; }
+        .modal-animate { animation: slideUp 0.3s ease-out; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        input[type=range] { accent-color: #f97316; }
+        .custom-scrollbar::-webkit-scrollbar { width: 5px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useMemo } = React;
+
+        // --- 1. 初始化 Firebase (直接使用您的 Config) ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyCzUpYrxgrGtEIsdCUUxIUc5SkohBHcwzI",
+            authDomain: "project-5662075909415327082.firebaseapp.com",
+            projectId: "project-5662075909415327082",
+            storageBucket: "project-5662075909415327082.firebasestorage.app",
+            messagingSenderId: "610314045333",
+            appId: "1:610314045333:web:867206bcdfb6003a48189c",
+            measurementId: "G-1RDTWJ74RM"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const googleProvider = new firebase.auth.GoogleAuthProvider();
+
+        // --- 2. 寵物數據資料庫 ---
+        const PETS_DATA = [
+            { id: 1, name: "金黃小太陽", type: "dog", breed: "黃金獵犬", age: "2歲", energy: 5, space: 4, weight: "25kg", tags: ["活力充沛", "親近小孩"], img: "https://images.unsplash.com/photo-1552053831-71594a27632d?auto=format&fit=crop&q=80&w=800", desc: "小太陽非常溫暖，適合喜歡戶外運動與慢跑的家庭。" },
+            { id: 2, name: "優雅灰", type: "cat", breed: "俄羅斯藍貓", age: "1歲", energy: 2, space: 1, weight: "4kg", tags: ["極度安靜", "不掉毛"], img: "https://images.unsplash.com/photo-1513245543132-31f507417b26?auto=format&fit=crop&q=80&w=800", desc: "優雅灰適合居住在公寓的人，她是一位害羞且冷靜的夥伴。" },
+            { id: 3, name: "豆柴小黑", type: "dog", breed: "柴犬", age: "3歲", energy: 4, space: 2, weight: "11kg", tags: ["個性獨立", "愛乾淨"], img: "https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?auto=format&fit=crop&q=80&w=800", desc: "小黑很有主見，適合有經驗的飼主，他會是你最忠誠的守護者。" },
+            { id: 4, name: "奶油球", type: "cat", breed: "布偶貓", age: "5個月", energy: 2, space: 2, weight: "2.5kg", tags: ["黏人精", "室內生活"], img: "https://images.unsplash.com/photo-1533738363-b7f9aef128ce?auto=format&fit=crop&q=80&w=800", desc: "奶油球是個好奇的小女孩，非常喜歡黏著主人撒嬌。" },
+            { id: 5, name: "閃電", type: "dog", breed: "哈士奇", age: "1歲", energy: 5, space: 5, weight: "22kg", tags: ["拆家高手", "話很多"], img: "https://images.unsplash.com/photo-1537151608828-ea2b11777ee8?auto=format&fit=crop&q=80&w=800", desc: "閃電需要非常大的運動量與空間，如果你喜歡每天跑 5 公里，他是完美選擇。" }
+        ];
+
+        // --- 3. 寵物詳細資訊彈窗 ---
+        const DetailModal = ({ pet, onClose }) => {
+            if (!pet) return null;
+            return (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+                    <div className="bg-white w-full max-w-4xl rounded-[2.5rem] overflow-hidden shadow-2xl flex flex-col md:flex-row modal-animate max-h-[90vh]">
+                        <div className="md:w-1/2 relative h-64 md:h-auto">
+                            <img src={pet.img} className="w-full h-full object-cover" alt={pet.name} />
+                            <button onClick={onClose} className="absolute top-6 left-6 w-10 h-10 bg-white shadow-xl rounded-full text-gray-900 hover:scale-110 transition-all flex items-center justify-center">
+                                <i className="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <div className="md:w-1/2 p-8 md:p-12 overflow-y-auto custom-scrollbar">
+                            <span className="text-orange-500 font-bold tracking-widest text-xs uppercase">{pet.breed}</span>
+                            <h2 className="text-4xl font-extrabold text-gray-900 mb-6">{pet.name}</h2>
+                            <div className="grid grid-cols-2 gap-4 mb-8">
+                                <div className="bg-gray-50 p-4 rounded-2xl"><p className="text-gray-400 text-xs">年齡</p><p className="font-bold">{pet.age}</p></div>
+                                <div className="bg-gray-50 p-4 rounded-2xl"><p className="text-gray-400 text-xs">體重</p><p className="font-bold">{pet.weight}</p></div>
+                            </div>
+                            <p className="text-gray-600 leading-relaxed mb-8">{pet.desc}</p>
+                            <button onClick={() => alert('申請已送出！系統將通知收容所。')} className="w-full bg-orange-500 text-white py-4 rounded-2xl font-bold hover:bg-orange-600 shadow-lg transition-all">立即聯繫領養</button>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // --- 4. 登入畫面 ---
+        const AuthScreen = () => {
+            const [isLogin, setIsLogin] = useState(true);
+            const [email, setEmail] = useState('');
+            const [password, setPassword] = useState('');
+            const [error, setError] = useState('');
+
+            const handleAuth = async (e) => {
+                e.preventDefault();
+                setError('');
+                try {
+                    if (isLogin) await auth.signInWithEmailAndPassword(email, password);
+                    else await auth.createUserWithEmailAndPassword(email, password);
+                } catch (err) { setError("驗證失敗：郵件格式錯誤或密碼太短。"); }
+            };
+
+            return (
+                <div className="min-h-screen flex items-center justify-center bg-orange-50 p-6">
+                    <div className="bg-white max-w-md w-full p-10 rounded-[3rem] shadow-2xl">
+                        <div className="text-center mb-8">
+                            <h1 className="text-3xl font-black text-gray-900 tracking-tighter">PAWMATCH</h1>
+                            <p className="text-gray-400 text-sm mt-2">{isLogin ? '歡迎回來，請登入' : '註冊新帳號以開始'}</p>
+                        </div>
+                        <form onSubmit={handleAuth} className="space-y-4">
+                            <input type="email" placeholder="Email" className="w-full px-6 py-4 rounded-2xl border border-gray-100 outline-none focus:ring-2 focus:ring-orange-500" value={email} onChange={e => setEmail(e.target.value)} required />
+                            <input type="password" placeholder="密碼" className="w-full px-6 py-4 rounded-2xl border border-gray-100 outline-none focus:ring-2 focus:ring-orange-500" value={password} onChange={e => setPassword(e.target.value)} required />
+                            {error && <p className="text-red-500 text-xs text-center font-bold">{error}</p>}
+                            <button className="w-full bg-gray-900 text-white py-4 rounded-2xl font-bold hover:bg-orange-500 transition-all shadow-xl">
+                                {isLogin ? '登入系統' : '註冊帳號'}
+                            </button>
+                        </form>
+                        <div className="my-6 flex items-center gap-4"><hr className="flex-1 border-gray-100" /><span className="text-gray-400 text-xs">或</span><hr className="flex-1 border-gray-100" /></div>
+                        <button onClick={() => auth.signInWithPopup(googleProvider)} className="w-full border border-gray-200 py-4 rounded-2xl font-bold flex items-center justify-center gap-3 hover:bg-gray-50 transition-all">
+                            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="18" alt="google" />
+                            使用 Google 登入
+                        </button>
+                        <p className="text-center mt-8 text-sm text-gray-500">
+                            {isLogin ? '還沒有帳號嗎？' : '已經有帳號了？'} 
+                            <button onClick={() => setIsLogin(!isLogin)} className="text-orange-500 font-bold ml-1 underline">立即切換</button>
+                        </p>
+                    </div>
+                </div>
+            );
+        };
+
+        // --- 5. 主程式介面 ---
+        function MainApp({ user }) {
+            const [prefs, setPrefs] = useState({ space: 3, energy: 3 });
+            const [category, setCategory] = useState('all');
+            const [selectedPet, setSelectedPet] = useState(null);
+
+            const displayPets = useMemo(() => {
+                return PETS_DATA
+                    .filter(p => category === 'all' || p.type === category)
+                    .map(pet => {
+                        const score = 100 - (Math.abs(pet.space - prefs.space) * 10 + Math.abs(pet.energy - prefs.energy) * 10);
+                        return { ...pet, score: Math.max(score, 65) };
+                    }).sort((a, b) => b.score - a.score);
+            }, [prefs, category]);
+
+            return (
+                <div className="min-h-screen pb-20">
+                    {/* 導航列 */}
+                    <nav className="p-8 flex justify-between items-center max-w-7xl mx-auto">
+                        <div className="text-2xl font-black text-orange-500 tracking-tighter">PAWMATCH.</div>
+                        <button onClick={() => auth.signOut()} className="flex items-center gap-3 bg-white px-5 py-2 rounded-full shadow-sm hover:text-red-500 transition-all">
+                            <span className="text-sm font-bold text-gray-700">{user.displayName || user.email.split('@')[0]}</span>
+                            <i className="fas fa-sign-out-alt text-gray-300"></i>
+                        </button>
+                    </nav>
+
+                    {/* 篩選與媒合器 */}
+                    <header className="max-w-7xl mx-auto px-6 mb-12">
+                        <div className="bg-white rounded-[3.5rem] p-10 md:p-14 shadow-2xl shadow-slate-200/50 border border-white flex flex-col lg:flex-row gap-12 items-center">
+                            <div className="flex-1">
+                                <h1 className="text-4xl md:text-5xl font-black text-gray-900 leading-tight mb-8">幫你找到最契合的<br /><span className="text-orange-500 underline decoration-8 decoration-orange-100 underline-offset-4">毛毛家人</span></h1>
+                                <div className="flex gap-2">
+                                    {['all', 'dog', 'cat'].map(t => (
+                                        <button key={t} onClick={() => setCategory(t)} className={`px-8 py-3 rounded-2xl text-sm font-bold transition-all ${category === t ? 'bg-orange-500 text-white shadow-lg' : 'bg-gray-100 text-gray-400 hover:bg-gray-200'}`}>
+                                            {t === 'all' ? '全部' : t === 'dog' ? '狗狗' : '貓咪'}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                            <div className="flex-1 w-full space-y-8 bg-slate-50 p-10 rounded-[2.5rem]">
+                                {['space', 'energy'].map(key => (
+                                    <div key={key} className="space-y-4">
+                                        <div className="flex justify-between font-bold text-gray-700">
+                                            <span>{key === 'space' ? '🏡 居住空間' : '⚡ 活力需求'}</span>
+                                            <span className="bg-white px-3 py-1 rounded-lg text-orange-500 shadow-sm">{prefs[key]}級</span>
+                                        </div>
+                                        <input type="range" min="1" max="5" value={prefs[key]} onChange={e => setPrefs({...prefs, [key]: +e.target.value})} className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer" />
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </header>
+
+                    {/* 寵物列表區 */}
+                    <main className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                        {displayPets.map(pet => (
+                            <div key={pet.id} className="bg-white rounded-[2.5rem] overflow-hidden shadow-sm hover:shadow-2xl transition-all group flex flex-col border border-gray-50">
+                                <div className="relative h-64 overflow-hidden">
+                                    <img src={pet.img} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt={pet.name} />
+                                    <div className="absolute top-4 left-4 bg-white/95 backdrop-blur px-3 py-1.5 rounded-full text-[10px] font-black shadow-sm tracking-tighter uppercase">
+                                        <i className="fas fa-bolt text-orange-500 mr-1"></i> {pet.score}% Match
+                                    </div>
+                                </div>
+                                <div className="p-7 flex flex-col flex-grow">
+                                    <h3 className="text-2xl font-bold text-gray-900 mb-6 leading-none">{pet.name}</h3>
+                                    <button 
+                                        onClick={() => setSelectedPet(pet)}
+                                        className="mt-auto w-full py-4 rounded-[1.25rem] bg-gray-900 text-white text-xs font-black tracking-widest hover:bg-orange-500 transition-all uppercase"
+                                    >
+                                        檢視完整資訊
+                                    </button>
+                                </div>
+                            </div>
+                        ))}
+                    </main>
+
+                    {/* 彈窗渲染 */}
+                    {selectedPet && <DetailModal pet={selectedPet} onClose={() => setSelectedPet(null)} />}
+                </div>
+            );
+        }
+
+        // --- 6. 核心 Root 組件 ---
+        function App() {
+            const [user, setUser] = useState(null);
+            const [loading, setLoading] = useState(true);
+
+            useEffect(() => {
+                const unsubscribe = auth.onAuthStateChanged((u) => {
+                    setUser(u);
+                    setLoading(false);
+                });
+                return () => unsubscribe();
+            }, []);
+
+            if (loading) return (
+                <div className="min-h-screen flex items-center justify-center bg-white">
+                    <div className="text-center">
+                        <div className="w-16 h-16 border-4 border-orange-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                        <p className="font-bold text-gray-400 tracking-widest uppercase text-sm">Loading PawMatch</p>
+                    </div>
+                </div>
+            );
+
+            return user ? <MainApp user={user} /> : <AuthScreen />;
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
